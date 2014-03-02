@@ -24,7 +24,7 @@ function formatEvent(event_data) {
 		k = keys[i];
 		if(typeof(event_data[k]) != undefined)
 			e[k] = event_data[k];
-		if(typeof(e[k].getTime) != 'undefined')
+		if(typeof(e[k]) != 'undefined' && typeof(e[k].getTime) != 'undefined')
 			e[k] = sqlTimestamp(e[k]);
 	}
 	return e;
