@@ -1,5 +1,5 @@
 <?php
-include("db/sql.php");
+include("db/postgresql.php");
 // allowed request keys and their sanitization types
 $keys = [
 	'id' => FILTER_SANITIZE_NUMBER_INT,
@@ -8,7 +8,6 @@ $keys = [
 	'end' => FILTER_SANITIZE_NUMBER_INT,
 	'allDay' => FILTER_SANITIZE_STRING
 ];
-print_r($keys);
 foreach($keys as $key => $filter) {
 	$data[$key] = !empty($_REQUEST[$key]) ? filter_var($_REQUEST[$key], $filter) : '';
 }
