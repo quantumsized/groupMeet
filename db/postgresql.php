@@ -107,7 +107,7 @@ class DB
 		$insert_keys = [];
 		$insert_values = [];
 		foreach($items as $key => $value) {
-			$update[] = "$key='$value'";
+			$update[] = "\"$key\"='$value'";
 			$insert_keys[] = "\"$key\"";
 			$insert_values[] = "'$value'";
 		}

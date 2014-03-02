@@ -14,33 +14,40 @@ function formatDate(date) {
 	var dateAry = Array(date.getMonth()+1,date.getDate(),date.getFullYear());
 	return dateAry.join("/");
 }
+function sqlTimestamp(time_obj) {
+	return time_obj.getTime() / 1000;
+}
+function formatEvent(event_data) {
+	var keys = ['id', 'title', 'start', 'end', 'allDay'];
+	var e = {}, k;
+	for(var i = 0; i < keys.length; i++) {
+		k = keys[i];
+		if(typeof(event_data[k]) != undefined)
+			e[k] = event_data[k];
+		if(typeof(e[k].getTime) != 'undefined')
+			e[k] = sqlTimestamp(e[k]);
+	}
+	return e;
+}
 $(document).ready(function() {
 	// $("#event_details #start_date").datepicker();
 	// $("#event_details #end_date").datepicker();
 	$("#event_details").overlay({ closeOnClick: false });
 	var setEvent = function(){
-			var start = new Date($("#event_details #start").val());
-			var end = new Date($("#event_details #end").val());
-			var title = $("#event_details #event_title").val();
-			var allDay = true;
-			if (title) {
-				calendar.fullCalendar('renderEvent', {
-						title: title,
-						start: start,
-						end: end,
-						allDay: allDay
-					},
-					true // make the event "stick"
-				);
-				var event_data = {
-					title: title,
-					start: start.getTime() / 1000,
-					end: end.getTime() / 1000,
-					allDay: allDay
-				}
-				// console.log(event_data);
-				dbUpdate(event_data);
-			}
+		var event_data = {
+			start: new Date($("#event_details #start").val()),
+			end: new Date($("#event_details #end").val()),
+			title: $("#event_details #event_title").val(),
+			allDay: true
+		}
+		if (event_data.title) {
+			calendar.fullCalendar('renderEvent', 
+				event_data,
+				true // make the event "stick"
+			);
+			// console.log(event_data);
+			dbUpdate(formatEvent(event_data));
+		}
 		$("#event_details").overlay().close();
 	};
 	$("#event_details #set_event").click(setEvent);
@@ -69,7 +76,11 @@ $(document).ready(function() {
 		events: "get_events.php",
 		
 		eventDrop: function(event, delta) {
-			alert(event.title + ' was moved ' + delta + ' days\n');
+			dbUpdate(formatEvent(event));
+		},
+		
+		eventResize: function(event, delta) {
+			dbUpdate(formatEvent(event));
 		},
 		
 		loading: function(bool) {
