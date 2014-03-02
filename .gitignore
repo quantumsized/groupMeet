@@ -1,0 +1,4 @@
+# Ignore tgr specific files
+/dbout.php
+/*.sublime*
+/old
