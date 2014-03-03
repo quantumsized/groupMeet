@@ -101,13 +101,13 @@
         <label>Start: </label>
         <input type="text" id="start" size="10" />
         <span id="start_time"></span>
-        <input type="checkbox" id="allday1" checked="true" />All Day
+        <input type="checkbox" id="allday" checked="true" />All Day
       </div>
       <div>
         <label>End: </label>
         <input type="text"  id="end" size="10" />
         <span id="end_time"></span>
-        <input type="checkbox" id="allday2" checked="true" />All Day
+        <!--<input type="checkbox" id="allday2" checked="true" />All Day-->
       </div>
       <div>
         <label for="event_link">URL: </label>

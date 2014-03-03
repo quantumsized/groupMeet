@@ -24,7 +24,7 @@ function formatEvent(event_data) {
 		k = keys[i];
 		if(typeof(event_data[k]) != undefined)
 			e[k] = event_data[k];
-		if(typeof(e[k]) != 'undefined' && typeof(e[k].getTime) != 'undefined')
+		if(e[k] && typeof(e[k].getTime) != 'undefined')
 			e[k] = sqlTimestamp(e[k]);
 	}
 	return e;
@@ -38,7 +38,7 @@ $(document).ready(function() {
 			start: new Date($("#event_details #start").val()),
 			end: new Date($("#event_details #end").val()),
 			title: $("#event_details #event_title").val(),
-			allDay: true
+			allDay: $("#event_details #allday.input:checked") ? true : false
 		}
 		if (event_data.title) {
 			calendar.fullCalendar('renderEvent', 

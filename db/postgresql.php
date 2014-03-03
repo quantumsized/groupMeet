@@ -98,11 +98,14 @@ class DB
 	 * @return  Array - and array of whatever the query returns, if anything
 	 */
 	public function updateEvent($id, $title, $start, $end, $allDay) {
-		$start = $this->sqlDate($start);
-		$end = $this->sqlDate($end);
-		$allDay = $allDay == 'false' ? '0' : '1';
 		// compact() doesn't work here so we have to do it manually :(
-		$items = ['title' => $title, 'start' => $start, 'end' => $end, 'allDay' => $allDay];
+		$items = [
+			'title' => $title,
+			'start' => $this->sqlDate($start),
+			'allDay' => $allDay == 'false' ? '0' : '1'
+		];
+		if(!empty($end))
+			$items['end'] = $this->sqlDate($end);
 		$update = [];
 		$insert_keys = [];
 		$insert_values = [];
