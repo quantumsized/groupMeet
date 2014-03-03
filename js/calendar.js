@@ -12,7 +12,32 @@ function dbUpdate(data) {
 }
 function formatDate(date) {
 	var dateAry = Array(date.getMonth()+1,date.getDate(),date.getFullYear());
+	for(var i = 0; i < dateAry.length; i++) dateAry[i] = zeroPad(dateAry[i]);
 	return dateAry.join("/");
+}
+function formatTime(time) {
+	var timeAry = Array(time.getHours(),time.getMinutes(),time.getSeconds());
+	for(var i = 0; i < timeAry.length; i++) timeAry[i] = zeroPad(timeAry[i]);
+	return timeAry.join(":");
+}
+function zeroPad(number) {
+	if(parseFloat(number) < 10)
+		number = "0" + number;
+	return number;
+}
+function hideTimeInput(input, hide) {
+	if(hide) {
+		$(input).hide();
+		$(input).attr('data-oldval', $(input).val());
+		$(input).val('00:00:00');
+	} else {
+		var v = $(input).attr('data-oldval');
+		if(v) {
+			$(input).val(v);
+			$(input).attr('data-oldval', '');
+		}
+		$(input).show();
+	}
 }
 function sqlTimestamp(time_obj) {
 	return time_obj.getTime() / 1000;
@@ -32,21 +57,25 @@ function formatEvent(event_data) {
 $(document).ready(function() {
 	// $("#event_details #start_date").datepicker();
 	// $("#event_details #end_date").datepicker();
+	$("#event_details #allday").change(function(e) {
+		var event_start = "#event_details #start_time";
+		var event_end = "#event_details #end_time";
+		var hide = $("#event_details input#allday:checked").length > 0;
+		hideTimeInput(event_start, hide);
+		hideTimeInput(event_end, hide);
+	});
 	$("#event_details").overlay({ closeOnClick: false });
 	var setEvent = function(){
 		var event_data = {
-			start: new Date($("#event_details #start").val()),
-			end: new Date($("#event_details #end").val()),
+			start: new Date($("#event_details #start_date").val() + " " + $("#event_details #start_time").val()),
+			end: new Date($("#event_details #end_date").val() + " " + $("#event_details #end_time").val()),
 			title: $("#event_details #event_title").val(),
-			allDay: $("#event_details #allday.input:checked") ? true : false
+			allDay: $("#event_details input#allday:checked").length > 0
 		}
 		if (event_data.title) {
-			calendar.fullCalendar('renderEvent', 
-				event_data,
-				true // make the event "stick"
-			);
 			// console.log(event_data);
 			dbUpdate(formatEvent(event_data));
+			calendar.fullCalendar('renderEvent', event_data, true);
 		}
 		$("#event_details").overlay().close();
 	};
@@ -65,8 +94,14 @@ $(document).ready(function() {
 		selectable: true,
 		selectHelper: true,
 		select: function(start, end, allDay) {
-			$("#event_details #start").val(formatDate(start));
-			$("#event_details #end").val(formatDate(end));
+			$("#event_details #start_date").val(formatDate(start));
+			$("#event_details #start_time").val(formatTime(start));
+			$("#event_details #end_date").val(formatDate(end));
+			$("#event_details #end_time").val(formatTime(end));
+			$("#event_details #event_title").val('');
+			$("#event_details #allday").prop('checked', allDay);
+			hideTimeInput("#event_details #start_time", allDay);
+			hideTimeInput("#event_details #end_time", allDay);
 			$("#event_details").overlay().load();
 			$("#event_details #event_title").focus();
 			calendar.fullCalendar('unselect');

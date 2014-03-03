@@ -83,8 +83,8 @@
       .simple_overlay label {
         display: inline-block;
         text-align: right;
-        width: 50px;
-        padding-right: 10px;
+        width: 60px;
+        padding-right: 5px;
       }
 
     </style>
@@ -99,15 +99,17 @@
       </div>
       <div>
         <label>Start: </label>
-        <input type="text" id="start" size="10" />
-        <span id="start_time"></span>
-        <input type="checkbox" id="allday" checked="true" />All Day
+        <input type="text" id="start_date" size="8" />
+        <input type="text" id="start_time" size="6" />
       </div>
       <div>
         <label>End: </label>
-        <input type="text"  id="end" size="10" />
-        <span id="end_time"></span>
-        <!--<input type="checkbox" id="allday2" checked="true" />All Day-->
+        <input type="text" id="end_date" size="8" />
+        <input type="text" id="end_time" size="6" />
+      </div>
+      <div>
+        <label>All Day: </label>
+        <input type="checkbox" id="allday" checked="true" />
       </div>
       <div>
         <label for="event_link">URL: </label>
