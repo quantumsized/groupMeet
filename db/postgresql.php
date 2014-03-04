@@ -115,7 +115,7 @@ class DB
 			$insert_values[] = "'$value'";
 		}
 		if(empty($id)) {
-			$query = "INSERT INTO ".$this->table."(".implode(",", $insert_keys).") VALUES (".implode(",", $insert_values).")";
+			$query = "INSERT INTO ".$this->table."(".implode(",", $insert_keys).") VALUES (".implode(",", $insert_values).") RETURNING id";
 		} else {
 			$query = "UPDATE ".$this->table." SET ".implode(",", $update)." WHERE id = $id";
 		}

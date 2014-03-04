@@ -1,8 +1,10 @@
-function dbUpdate(data) {
+function dbUpdate(data, success) {
 	console.log(data);
-	var success = function(data, textStatus, jqXHR) { // callback function
-		console.log(data);
-	};
+	if(!success) {
+		success = function(data, textStatus, jqXHR) { // callback function
+			console.log(data);
+		};
+	}
 	$.ajax({
 		type: "POST",
 		url: "edit_events.php",
@@ -34,7 +36,7 @@ function hideTimeInput(input, hide) {
 		var v = $(input).attr('data-oldval');
 		if(v) {
 			$(input).val(v);
-			$(input).attr('data-oldval', '');
+			$(input).removeAttr('data-oldval');
 		}
 		$(input).show();
 	}
@@ -74,8 +76,13 @@ $(document).ready(function() {
 		}
 		if (event_data.title) {
 			// console.log(event_data);
-			dbUpdate(formatEvent(event_data));
-			calendar.fullCalendar('renderEvent', event_data, true);
+			dbUpdate(formatEvent(event_data), function(data, textStatus, jqXHR) {
+				data = JSON.parse(data);
+				if(data && data[0] && data[0]['id']) {
+					event_data.id = data[0]['id'];
+					calendar.fullCalendar('renderEvent', event_data, true);
+				}
+			});
 		}
 		$("#event_details").overlay().close();
 	};
@@ -95,8 +102,10 @@ $(document).ready(function() {
 		selectHelper: true,
 		select: function(start, end, allDay) {
 			$("#event_details #start_date").val(formatDate(start));
+			$("#event_details #start_time").removeAttr('data-oldval');
 			$("#event_details #start_time").val(formatTime(start));
 			$("#event_details #end_date").val(formatDate(end));
+			$("#event_details #end_time").removeAttr('data-oldval');
 			$("#event_details #end_time").val(formatTime(end));
 			$("#event_details #event_title").val('');
 			$("#event_details #allday").prop('checked', allDay);

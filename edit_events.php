@@ -13,6 +13,6 @@ foreach($keys as $key => $filter) {
 }
 $db = new DB;
 if(extract($data) == count($keys))
-	print_r( $db->updateEvent($id, $title, $start, $end, $allDay) );
+	echo json_encode($db->updateEvent($id, $title, $start, $end, $allDay));
 else // this shouldn't happen...
 	echo "Error: invalid data!";
