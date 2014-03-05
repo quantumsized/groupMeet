@@ -135,7 +135,7 @@ $(document).ready(function() {
 		editable: true,
 		
 		events: "get_events.php",
-		
+		timeFormat: 'h:mm tt ',
 		eventDrop: function(event, delta) {
 			dbUpdate(formatEvent(event));
 		},
