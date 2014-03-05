@@ -1,13 +1,13 @@
 function dbUpdate(data, success) {
-	console.log(data);
+// 	console.log(data);
 	if(!success) {
 		success = function(data, textStatus, jqXHR) { // callback function
-			console.log(data);
+// 			console.log(data);
 		};
 	}
 	$.ajax({
 		type: "POST",
-		url: "edit_events.php",
+		url: "edit_event.php",
 		data: data,
 		success: success
 	});
@@ -56,6 +56,24 @@ function formatEvent(event_data) {
 	}
 	return e;
 }
+function isOverElement(element, coords) {
+	var e = $(element);
+	var o = e.offset();
+	var r = false;
+	var bb = { // element bounding box
+		top: o.top,
+		left: o.left,
+		bottom: o.top + e.outerHeight(true),
+		right: o.left + e.outerWidth(true)
+	};
+	var r = (
+		coords.x >= bb.left
+		&& coords.x <= bb.right
+		&& coords.y >= bb.top
+		&& coords.y <= bb.bottom
+	);
+	return r;
+}
 $(document).ready(function() {
 	// $("#event_details #start_date").datepicker();
 	// $("#event_details #end_date").datepicker();
@@ -75,7 +93,6 @@ $(document).ready(function() {
 			allDay: $("#event_details input#allday:checked").length > 0
 		}
 		if (event_data.title) {
-			// console.log(event_data);
 			dbUpdate(formatEvent(event_data), function(data, textStatus, jqXHR) {
 				data = JSON.parse(data);
 				if(data && data[0] && data[0]['id']) {
@@ -136,8 +153,43 @@ $(document).ready(function() {
 			// opens events in a popup window
 			window.open(event.url, 'width=400,height=280');
 			return false;
+		},
+
+		eventMouseover: function (event, jsEvent) {
+			$(this).mousemove(function (e) {
+				var trashEl = $('#calendarTrash');
+				if(isOverElement(trashEl, {x:e.pageX,y:e.pageY})) {
+					if (!trashEl.hasClass("to-trash")) {
+						trashEl.addClass("to-trash");
+					}
+				} else {
+					if (trashEl.hasClass("to-trash")) {
+						trashEl.removeClass("to-trash");
+					}
+
+				}
+			});
+		},
+
+		eventDragStop: function (event, jsEvent, ui, view) {
+			if (isOverElement('#calendarTrash', {x:jsEvent.pageX,y:jsEvent.pageY})) {
+				$.ajax({
+					type: "POST",
+					url: "remove_event.php",
+					data: { id: event.id },
+					success: function(data, textStatus, jqXHR) {
+						return function(event_id) {
+							calendar.fullCalendar('removeEvents', event_id);
+						}(event.id);
+					}
+				});
+				var trashEl = $('#calendarTrash');
+				if (trashEl.hasClass("to-trash")) {
+					trashEl.removeClass("to-trash");
+				}
+			}
 		}
 		
 	});
-	
+	$('.fc-header-left>:first-child').before('<div id="calendarTrash" class="calendar-trash"><img src="images/trashcan.png"></img></div>');
 });

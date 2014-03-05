@@ -36,7 +36,6 @@
     <![endif]-->
     <script src="js/calendar.js"></script>
     <style>
-        
       #loading {
         position: absolute;
         top: 5px;
@@ -51,6 +50,23 @@
         margin: 0 auto;
         }
 
+			#calendar .fc-view {
+				overflow: visible;
+			}
+      div.calendar-trash{
+				float: left;
+				padding-right: 8px;
+				margin-right:5px;
+				padding-left:8px;
+				padding-top: 3px;
+				cursor: pointer;
+			}
+
+			.to-trash{
+				background-color:#EAEAEA;
+				-webkit-border-radius: 5em;
+				border-radius: 5em;
+			}
       .simple_overlay {
 
         /* must be initially hidden */

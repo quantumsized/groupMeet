@@ -78,7 +78,7 @@ class DB
 	 *
 	 * @start   Integer - start date to look for events as unix timestamp
 	 * @end     Integer - end date to look for events as unix timestamp
-	 * @return  Array - and array of whatever the query returns, if anything
+	 * @return  Array - an array of whatever the query returns, if anything
 	 */
 	public function fetchEvents($start, $end) {
 		$start = $this->sqlDate($start);
@@ -95,7 +95,7 @@ class DB
 	 * @start   Integer - start date of event as unix timestamp
 	 * @end     Integer - end date of event, if different then start, as unix timestamp
 	 * @allDay  Boolean - does this event run all day, or not? (default: true)
-	 * @return  Array - and array of whatever the query returns, if anything
+	 * @return  Array - an array of whatever the query returns, if anything
 	 */
 	public function updateEvent($id, $title, $start, $end, $allDay) {
 		// compact() doesn't work here so we have to do it manually :(
@@ -119,6 +119,17 @@ class DB
 		} else {
 			$query = "UPDATE ".$this->table." SET ".implode(",", $update)." WHERE id = $id";
 		}
+		return $this->doQuery($query);
+	}
+
+	/**
+	 * Remove calendar event
+	 *
+	 * @id      Integer - the id of the event
+	 * @return  Array - an array of whatever the query returns, if anything
+	 */
+	public function removeEvent($id) {
+		$query = "DELETE FROM ".$this->table." WHERE id=$id";
 		return $this->doQuery($query);
 	}
 }
