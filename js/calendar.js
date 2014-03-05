@@ -155,6 +155,8 @@ $(document).ready(function() {
 			return false;
 		},
 
+		dragRevertDuration: 200,
+
 		eventMouseover: function (event, jsEvent) {
 			$(this).mousemove(function (e) {
 				var trashEl = $('#calendarTrash');
@@ -173,16 +175,19 @@ $(document).ready(function() {
 
 		eventDragStop: function (event, jsEvent, ui, view) {
 			if (isOverElement('#calendarTrash', {x:jsEvent.pageX,y:jsEvent.pageY})) {
-				$.ajax({
-					type: "POST",
-					url: "remove_event.php",
-					data: { id: event.id },
-					success: function(data, textStatus, jqXHR) {
-						return function(event_id) {
-							calendar.fullCalendar('removeEvents', event_id);
-						}(event.id);
-					}
-				});
+				var confirm_delete = confirm("Delete Event?");
+				if(confirm_delete) {
+					$.ajax({
+						type: "POST",
+						url: "remove_event.php",
+						data: { id: event.id },
+						success: function(data, textStatus, jqXHR) {
+							return function(event_id) {
+								calendar.fullCalendar('removeEvents', event_id);
+							}(event.id);
+						}
+					});
+				}
 				var trashEl = $('#calendarTrash');
 				if (trashEl.hasClass("to-trash")) {
 					trashEl.removeClass("to-trash");
