@@ -45,7 +45,7 @@ function sqlTimestamp(time_obj) {
 	return time_obj.getTime() / 1000;
 }
 function formatEvent(event_data) {
-	var keys = ['id', 'title', 'start', 'end', 'allDay'];
+	var keys = ['id', 'title', 'start', 'end', 'allDay', 'url'];
 	var e = {}, k;
 	for(var i = 0; i < keys.length; i++) {
 		k = keys[i];
@@ -87,6 +87,7 @@ $(document).ready(function() {
 	$("#event_details").overlay({ closeOnClick: false });
 	var setEvent = function(){
 		var event_data = {
+			url: $("#event_details #event_link").val(),
 			start: new Date($("#event_details #start_date").val() + " " + $("#event_details #start_time").val()),
 			end: new Date($("#event_details #end_date").val() + " " + $("#event_details #end_time").val()),
 			title: $("#event_details #event_title").val(),
@@ -135,7 +136,7 @@ $(document).ready(function() {
 		editable: true,
 		
 		events: "get_events.php",
-		timeFormat: 'h:mm tt ',
+		timeFormat: 'h:mm tt { - h:mm tt} ',
 		eventDrop: function(event, delta) {
 			dbUpdate(formatEvent(event));
 		},

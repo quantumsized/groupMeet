@@ -97,9 +97,10 @@ class DB
 	 * @allDay  Boolean - does this event run all day, or not? (default: true)
 	 * @return  Array - an array of whatever the query returns, if anything
 	 */
-	public function updateEvent($id, $title, $start, $end, $allDay) {
+	public function updateEvent($id, $title, $start, $end, $allDay, $url) {
 		// compact() doesn't work here so we have to do it manually :(
 		$items = [
+			'url' => addslashes($url),
 			'title' => $title,
 			'start' => $this->sqlDate($start),
 			'allDay' => $allDay == 'false' ? '0' : '1'
