@@ -9,3 +9,4 @@ foreach($events as $key => $event) {
 	$events[$key]['url'] = stripslashes($event['url']);
 }
 echo json_encode($events);
+?>

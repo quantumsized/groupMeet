@@ -9,7 +9,7 @@
     <meta name="author" content="Tim Mann">
     <!--<link rel="shortcut icon" href="../../assets/ico/favicon.ico">-->
 
-    <title>The NOT Nation Builder True Grass Roots</title>
+    <title>Yelm Action - True Grass Roots</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -36,6 +36,13 @@
     <![endif]-->
     <script src="js/calendar.js"></script>
     <style>
+      #calendar a {
+        color: white;
+      }
+      #calendar a:hover {
+        color: white;
+        text-decoration:underline;
+      }
       #loading {
         position: absolute;
         top: 5px;
@@ -102,7 +109,9 @@
         width: 60px;
         padding-right: 5px;
       }
-
+      #event_info {
+        
+      }
     </style>
   </head>
 
@@ -129,9 +138,16 @@
       </div>
       <div>
         <label for="event_link">URL: </label>
-        <input type="text" id="event_link" />
+        <textarea id="event_link"></textarea>
       </div>
       <div><input type="button" id="set_event" value="Set" /></div>
+    </div>
+    <div class="simple_overlay" id="event_info">
+      <svg class="close" width="22" height="22"><g stroke="white" stroke-width="2"><path d="M 6,6 16,16 M 16,6 6,16" /></g></svg>
+      <div>
+        <h3 class="title"></h3>
+        <p class="url"></p>
+      </div>
     </div>
     <div class="masthead">
       <div class="container">

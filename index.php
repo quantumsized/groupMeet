@@ -9,7 +9,7 @@
     <meta name="author" content="Tim Mann">
     <!--<link rel="shortcut icon" href="../../assets/ico/favicon.ico">-->
 
-    <title>Static Top Navbar Example for Bootstrap</title>
+    <title>Yelm Action - True Grass Roots</title>
 
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">

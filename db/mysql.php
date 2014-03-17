@@ -12,10 +12,10 @@ date_default_timezone_set('America/Los_Angeles');
  */
 class DB
 {
-	private $username = "test";
-	private $password = "pass";
-	private $host = "localhost";
-	private $database = "test";
+	private $username = "yelcom_686";
+	private $password = "c59d7v4";
+	private $host = "db.wavenetworks.com";
+	private $database = "yelcom_686";
 	private $table = "calendar";
 	private $resource;
 	
@@ -78,15 +78,20 @@ class DB
 	 * @allDay  Boolean - does this event run all day, or not? (default: true)
 	 * @return  Array - and array of whatever the query returns, if anything
 	 */
-	public function updateEvent($id, $title, $start, $end, $allDay) {
+	public function updateEvent($id, $title, $start, $end, $allDay, $url) {
 		$start = $this->mysql_date($start);
 		$end = $this->mysql_date($end);
 		$allDay = $allDay == 'false' ? '0' : '1';
 		// compact() doesn't work here so we have to do it manually :(
-		$items = ['title' => $title, 'start' => $start, 'end' => $end, 'allDay' => $allDay];
-		$update = [];
-		$insert_keys = [];
-		$insert_values = [];
+		$items = array('url' => addslashes($url),
+			'title' => $title,
+			'start' => $start, 
+			'allDay' => $allDay);
+		if(!empty($end))
+			$items['end'] = $end;
+		$update = array();
+		$insert_keys = array();
+		$insert_values = array();
 		foreach($items as $key => $value) {
 			$update[] = "$key='$value'";
 			$insert_keys[] = "$key";

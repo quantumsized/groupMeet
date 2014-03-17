@@ -84,6 +84,7 @@ $(document).ready(function() {
 		hideTimeInput(event_start, hide);
 		hideTimeInput(event_end, hide);
 	});
+	$("#event_info").overlay({ closeOnClick: false });
 	$("#event_details").overlay({ closeOnClick: false });
 	var setEvent = function(){
 		var event_data = {
@@ -152,8 +153,11 @@ $(document).ready(function() {
 
 		eventClick: function(event) {
 			// opens events in a popup window
-			window.open(event.url, 'width=400,height=280');
-			return false;
+				$("#event_info .title").html(event.title);
+				$("#event_info .url").html(event.url);
+				$("#event_info").overlay().load();
+				return false;
+			
 		},
 
 		dragRevertDuration: 200,
