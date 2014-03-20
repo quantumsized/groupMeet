@@ -1,4 +1,5 @@
 <?php include "./assets/feeder.php"; ?>
+<?php $authorized_user = false; ?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -35,6 +36,7 @@
       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
     <script src="js/calendar.js"></script>
+    <script>$(document).ready(function() {init<?php if($authorized_user) echo "Editable"; ?>Calendar();});</script>
     <style>
       #calendar a {
         color: white;
@@ -102,6 +104,8 @@
         cursor: pointer;
         border-radius: 14px;
         background: -webkit-gradient(linear, left top, left bottom, from(#ccc), to(#666));
+        background: -moz-linear-gradient(top, #ccc, #666);
+        opacity: 1;
       }
       .simple_overlay label {
         display: inline-block;
@@ -109,8 +113,14 @@
         width: 60px;
         padding-right: 5px;
       }
-      #event_info {
-        
+      #event_info .event_title {
+        text-align: center;
+        margin-top: 0;
+      }
+      #event_info div.info > strong {
+        display: inline-block;
+        width: 80px;
+        text-align: right;
       }
     </style>
   </head>
@@ -143,11 +153,11 @@
       <div><input type="button" id="set_event" value="Set" /></div>
     </div>
     <div class="simple_overlay" id="event_info">
-      <svg class="close" width="22" height="22"><g stroke="white" stroke-width="2"><path d="M 6,6 16,16 M 16,6 6,16" /></g></svg>
-      <div>
-        <h3 class="title"></h3>
-        <p class="url"></p>
-      </div>
+      <svg class="close" width="22" height="22"><path fill="black" stroke="white" stroke-width="2" d="M 6,6 16,16 M 16,6 6,16" /></svg>
+      <h3 class="event_title"></h3>
+      <div class="info"><strong>From:</strong> <span class="start"></span></div>
+      <div class="info"><strong>To:</strong> <span class="end"></span></div>
+      <div class="info"><strong>More Info:</strong> <a class="link" target="_blank"></a></div>
     </div>
     <div class="masthead">
       <div class="container">

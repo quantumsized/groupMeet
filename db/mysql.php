@@ -1,5 +1,11 @@
 <?php
+$DEBUG = true;
+
 date_default_timezone_set('America/Los_Angeles');
+if($DEBUG) {
+	error_reporting(E_ALL);
+	ini_set('display_errors', '1');
+}
 /**
  * A class to handle database operations
  *
@@ -12,10 +18,10 @@ date_default_timezone_set('America/Los_Angeles');
  */
 class DB
 {
-	private $username = "yelcom_686";
-	private $password = "c59d7v4";
-	private $host = "db.wavenetworks.com";
-	private $database = "yelcom_686";
+	private $username = "test";
+	private $password = "pass";
+	private $host = "localhost";
+	private $database = "test";
 	private $table = "calendar";
 	private $resource;
 	
@@ -25,7 +31,7 @@ class DB
 	 * @unix_timestamp  Integer - a unix timestamp (duh...)
 	 * @return          String - a mysql compatable date string
 	 */
-	private function mysql_date($unix_timestamp) {
+	private function sqlDate($unix_timestamp) {
 		return date("Y-m-d H:i:s", $unix_timestamp);
 	}
 
@@ -36,20 +42,39 @@ class DB
 	 * @return  Array - and array of whatever the query returns, if anything
 	 */
 	private function doQuery($query) {
+		global $DEBUG;
 		$result;
 		if(!$this->resource = @mysql_connect($this->host, $this->username, $this->password)) {
-			die("Unable to connect to database!");
+			if($DEBUG)
+				die(mysql_error($this->resource));
+			else
+				die("Unable to connect to database!");
 		}
 		if(!@mysql_select_db($this->database, $this->resource)) {
+			$err = mysql_error($this->resource);
 			mysql_close($this->resource);
-			die("Unable to select database!");
+			if($DEBUG)
+				die($err);
+			else
+				die("Unable to select database!");
 		}
 		if(!$result = @mysql_query($query, $this->resource)) {
+			$err = mysql_error($this->resource);
 			mysql_close($this->resource);
-			die("Database update failed!");
+			if($DEBUG)
+				die($err);
+			else
+				die("Database update failed!");
 		}
 		$rows = array();
-		while($rows[] = @mysql_fetch_assoc($result)) {}
+		if(preg_match('/^INSERT/', $query) == 1) {
+			$rows[] = [ 'id' => mysql_insert_id() ];
+		} else {
+			while($row = @mysql_fetch_assoc($result)) {
+				if(!empty($row))
+					$rows[] = $row;
+			}
+		}
 		mysql_close($this->resource);
 		return $rows;
 	}
@@ -57,51 +82,58 @@ class DB
 	/**
 	 * Fetch events between Start and End dates/times
 	 *
-	 * @start   Integer - start date to look for events as unix timestamp
-	 * @end     Integer - end date to look for events as unix timestamp
-	 * @return  Array - and array of whatever the query returns, if anything
+	 * @args    Array - associative array with the start and end time between which to fetch events
+	 * @return  Array - an array of whatever the query returns, if anything
 	 */
-	public function fetchEvents($start, $end) {
-		$start = $this->mysql_date($start);
-		$end = $this->mysql_date($end);
-		$query = "SELECT * FROM ".$this->table." WHERE start>='$start' AND end<='$end'";
+	public function fetchEvents($args) {
+		$start = $this->sqlDate($args['start']);
+		$end = $this->sqlDate($args['end']);
+		$query = "SELECT * FROM ".$this->table." WHERE `start`>='$start' AND `end`<='$end'";
 		return $this->doQuery($query);
 	}
 
 	/**
-	 * Update Calendar Events in the Database
+	 * Insert / Update Calendar Events in the Database
 	 *
-	 * @id      Integer - id of the event to update if applicable
-	 * @title   String - new title of event (max length 255)
-	 * @start   Integer - start date of event as unix timestamp
-	 * @end     Integer - end date of event, if different then start, as unix timestamp
-	 * @allDay  Boolean - does this event run all day, or not? (default: true)
-	 * @return  Array - and array of whatever the query returns, if anything
+	 * @args    Array - associative array of columns (as keys) and column values to put into the database
+	 * @return  Array - an array of whatever the query returns, if anything
 	 */
-	public function updateEvent($id, $title, $start, $end, $allDay, $url) {
-		$start = $this->mysql_date($start);
-		$end = $this->mysql_date($end);
-		$allDay = $allDay == 'false' ? '0' : '1';
-		// compact() doesn't work here so we have to do it manually :(
-		$items = array('url' => addslashes($url),
-			'title' => $title,
-			'start' => $start, 
-			'allDay' => $allDay);
-		if(!empty($end))
-			$items['end'] = $end;
-		$update = array();
-		$insert_keys = array();
-		$insert_values = array();
-		foreach($items as $key => $value) {
-			$update[] = "$key='$value'";
-			$insert_keys[] = "$key";
+	public function updateEvent($args) {
+		// pre-set some vars
+		$update = [];
+		$insert_keys = [];
+		$insert_values = [];
+		
+		// parse some vars so they make the database happy
+		if(!empty($args['start']))
+			$args['start'] = $this->sqlDate($args['start']);
+		if(!empty($args['end']))
+			$args['end'] = $this->sqlDate($args['end']);
+		$args['allDay'] = ($args['allDay'] == 'false') ? '0' : '1';
+		
+		// put the vars onto a database-make-happy string
+		foreach($args as $key => $value) {
+			$update[] = "`$key`='$value'";
+			$insert_keys[] = "`$key`";
 			$insert_values[] = "'$value'";
 		}
-		if(empty($id)) {
+		
+		if(empty($args['id'])) {
 			$query = "INSERT INTO ".$this->table."(".implode(",", $insert_keys).") VALUES (".implode(",", $insert_values).")";
 		} else {
-			$query = "UPDATE ".$this->table." SET ".implode(",", $update)." WHERE id = $id";
+			$query = "UPDATE ".$this->table." SET ".implode(",", $update)." WHERE id = ".$args['id'];
 		}
+		return $this->doQuery($query);
+	}
+
+	/**
+	 * Remove calendar event
+	 *
+	 * @args    Array - associative array of which we only need the id
+	 * @return  Array - an array of whatever the query returns, if anything
+	 */
+	public function removeEvent($args) {
+		$query = "DELETE FROM ".$this->table." WHERE id=".$args['id'];
 		return $this->doQuery($query);
 	}
 }

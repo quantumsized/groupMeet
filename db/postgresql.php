@@ -76,49 +76,46 @@ class DB
 	/**
 	 * Fetch events between Start and End dates/times
 	 *
-	 * @start   Integer - start date to look for events as unix timestamp
-	 * @end     Integer - end date to look for events as unix timestamp
+	 * @args    Array - associative array with the start and end time between which to fetch events
 	 * @return  Array - an array of whatever the query returns, if anything
 	 */
-	public function fetchEvents($start, $end) {
-		$start = $this->sqlDate($start);
-		$end = $this->sqlDate($end);
+	public function fetchEvents($args) {
+		$start = $this->sqlDate($args['start']);
+		$end = $this->sqlDate($args['end']);
 		$query = "SELECT * FROM ".$this->table." WHERE \"start\">='$start' AND \"end\"<='$end'";
 		return $this->doQuery($query);
 	}
 
 	/**
-	 * Update Calendar Events in the Database
+	 * Insert / Update Calendar Events in the Database
 	 *
-	 * @id      Integer - id of the event to update if applicable
-	 * @title   String - new title of event (max length 255)
-	 * @start   Integer - start date of event as unix timestamp
-	 * @end     Integer - end date of event, if different then start, as unix timestamp
-	 * @allDay  Boolean - does this event run all day, or not? (default: true)
+	 * @args    Array - associative array of columns (as keys) and column values to put into the database
 	 * @return  Array - an array of whatever the query returns, if anything
 	 */
-	public function updateEvent($id, $title, $start, $end, $allDay, $url) {
-		// compact() doesn't work here so we have to do it manually :(
-		$items = [
-			'url' => addslashes($url),
-			'title' => $title,
-			'start' => $this->sqlDate($start),
-			'allDay' => $allDay == 'false' ? '0' : '1'
-		];
-		if(!empty($end))
-			$items['end'] = $this->sqlDate($end);
+	public function updateEvent($args) {
+		// pre-set some vars
 		$update = [];
 		$insert_keys = [];
 		$insert_values = [];
-		foreach($items as $key => $value) {
+		
+		// parse some vars so they make the database happy
+		if(!empty($args['start']))
+			$args['start'] = $this->sqlDate($args['start']);
+		if(!empty($args['end']))
+			$args['end'] = $this->sqlDate($args['end']);
+		$args['allDay'] = ($args['allDay'] == 'false') ? '0' : '1';
+		
+		// put the vars onto a database-make-happy string
+		foreach($args as $key => $value) {
 			$update[] = "\"$key\"='$value'";
 			$insert_keys[] = "\"$key\"";
 			$insert_values[] = "'$value'";
 		}
-		if(empty($id)) {
+		
+		if(empty($args['id'])) {
 			$query = "INSERT INTO ".$this->table."(".implode(",", $insert_keys).") VALUES (".implode(",", $insert_values).") RETURNING id";
 		} else {
-			$query = "UPDATE ".$this->table." SET ".implode(",", $update)." WHERE id = $id";
+			$query = "UPDATE ".$this->table." SET ".implode(",", $update)." WHERE id = ".$args['id'];
 		}
 		return $this->doQuery($query);
 	}
@@ -126,11 +123,11 @@ class DB
 	/**
 	 * Remove calendar event
 	 *
-	 * @id      Integer - the id of the event
+	 * @args    Array - associative array of which we only need the id
 	 * @return  Array - an array of whatever the query returns, if anything
 	 */
-	public function removeEvent($id) {
-		$query = "DELETE FROM ".$this->table." WHERE id=$id";
+	public function removeEvent($args) {
+		$query = "DELETE FROM ".$this->table." WHERE id=".$args['id'];
 		return $this->doQuery($query);
 	}
 }
